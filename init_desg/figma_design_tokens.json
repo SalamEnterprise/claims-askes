@@ -1,0 +1,324 @@
+{
+  "name": "Claims Askes Design System",
+  "version": "1.0.0",
+  "pages": [
+    "📄 Cover",
+    "🎨 Design Tokens", 
+    "🧩 Components",
+    "👤 Member Portal",
+    "🏥 Provider Portal",
+    "📊 Admin Dashboard",
+    "📱 Mobile App",
+    "🔗 Prototypes",
+    "📚 Documentation"
+  ],
+  "colors": {
+    "primary": {
+      "100": {
+        "value": "#E6F2FF",
+        "description": "Primary lightest - backgrounds"
+      },
+      "200": {
+        "value": "#B3D9FF",
+        "description": "Primary light"
+      },
+      "300": {
+        "value": "#80BFFF",
+        "description": "Primary light-medium"
+      },
+      "400": {
+        "value": "#4DA6FF",
+        "description": "Primary medium-light"
+      },
+      "500": {
+        "value": "#0080FF",
+        "description": "Primary medium - links"
+      },
+      "600": {
+        "value": "#0066CC",
+        "description": "Primary base - main actions"
+      },
+      "700": {
+        "value": "#004D99",
+        "description": "Primary dark"
+      },
+      "800": {
+        "value": "#003366",
+        "description": "Primary darker"
+      },
+      "900": {
+        "value": "#001A33",
+        "description": "Primary darkest"
+      }
+    },
+    "semantic": {
+      "success": {
+        "light": "#E8F5E9",
+        "base": "#4CAF50",
+        "dark": "#2E7D32"
+      },
+      "warning": {
+        "light": "#FFF8E1",
+        "base": "#FFC107",
+        "dark": "#F57C00"
+      },
+      "error": {
+        "light": "#FFEBEE",
+        "base": "#E91E63",
+        "dark": "#C2185B"
+      },
+      "info": {
+        "light": "#E0F2F1",
+        "base": "#17A2B8",
+        "dark": "#006064"
+      }
+    },
+    "neutral": {
+      "0": "#FFFFFF",
+      "50": "#FAFAFA",
+      "100": "#F5F5F5",
+      "200": "#EEEEEE",
+      "300": "#E0E0E0",
+      "400": "#BDBDBD",
+      "500": "#9E9E9E",
+      "600": "#757575",
+      "700": "#616161",
+      "800": "#424242",
+      "900": "#212121",
+      "1000": "#000000"
+    },
+    "surface": {
+      "background": "#FFFFFF",
+      "paper": "#FFFFFF",
+      "elevated": "#FFFFFF",
+      "overlay": "rgba(0, 0, 0, 0.5)"
+    }
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Inter",
+      "secondary": "SF Pro Display",
+      "monospace": "SF Mono"
+    },
+    "fontSizes": {
+      "xs": 12,
+      "sm": 14,
+      "base": 16,
+      "lg": 18,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 28,
+      "4xl": 36,
+      "5xl": 48
+    },
+    "lineHeights": {
+      "tight": 1.2,
+      "normal": 1.5,
+      "relaxed": 1.75,
+      "loose": 2
+    },
+    "fontWeights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "textStyles": {
+      "display": {
+        "fontSize": 48,
+        "lineHeight": 56,
+        "fontWeight": 700,
+        "fontFamily": "Inter"
+      },
+      "h1": {
+        "fontSize": 36,
+        "lineHeight": 44,
+        "fontWeight": 600,
+        "fontFamily": "Inter"
+      },
+      "h2": {
+        "fontSize": 28,
+        "lineHeight": 36,
+        "fontWeight": 600,
+        "fontFamily": "Inter"
+      },
+      "h3": {
+        "fontSize": 24,
+        "lineHeight": 32,
+        "fontWeight": 500,
+        "fontFamily": "Inter"
+      },
+      "h4": {
+        "fontSize": 20,
+        "lineHeight": 28,
+        "fontWeight": 500,
+        "fontFamily": "Inter"
+      },
+      "body": {
+        "fontSize": 16,
+        "lineHeight": 24,
+        "fontWeight": 400,
+        "fontFamily": "Inter"
+      },
+      "bodySmall": {
+        "fontSize": 14,
+        "lineHeight": 20,
+        "fontWeight": 400,
+        "fontFamily": "Inter"
+      },
+      "caption": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": 400,
+        "fontFamily": "Inter"
+      },
+      "button": {
+        "fontSize": 14,
+        "lineHeight": 20,
+        "fontWeight": 500,
+        "fontFamily": "Inter",
+        "letterSpacing": 0.5
+      },
+      "overline": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": 600,
+        "fontFamily": "Inter",
+        "letterSpacing": 1,
+        "textTransform": "uppercase"
+      }
+    }
+  },
+  "spacing": {
+    "0": 0,
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "5": 20,
+    "6": 24,
+    "8": 32,
+    "10": 40,
+    "12": 48,
+    "16": 64,
+    "20": 80,
+    "24": 96,
+    "32": 128
+  },
+  "borderRadius": {
+    "none": 0,
+    "sm": 4,
+    "base": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "full": 9999
+  },
+  "borderWidth": {
+    "none": 0,
+    "thin": 1,
+    "base": 2,
+    "thick": 4
+  },
+  "shadows": {
+    "none": "none",
+    "xs": {
+      "x": 0,
+      "y": 1,
+      "blur": 2,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.05)"
+    },
+    "sm": {
+      "x": 0,
+      "y": 2,
+      "blur": 4,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.08)"
+    },
+    "base": {
+      "x": 0,
+      "y": 4,
+      "blur": 8,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.12)"
+    },
+    "md": {
+      "x": 0,
+      "y": 6,
+      "blur": 12,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.15)"
+    },
+    "lg": {
+      "x": 0,
+      "y": 8,
+      "blur": 16,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.18)"
+    },
+    "xl": {
+      "x": 0,
+      "y": 12,
+      "blur": 24,
+      "spread": 0,
+      "color": "rgba(0, 0, 0, 0.20)"
+    }
+  },
+  "breakpoints": {
+    "mobile": 320,
+    "mobileL": 375,
+    "tablet": 768,
+    "laptop": 1024,
+    "desktop": 1440,
+    "desktopL": 1920
+  },
+  "grids": {
+    "mobile": {
+      "columns": 4,
+      "gutter": 16,
+      "margin": 16,
+      "width": 375
+    },
+    "tablet": {
+      "columns": 8,
+      "gutter": 24,
+      "margin": 24,
+      "width": 768
+    },
+    "desktop": {
+      "columns": 12,
+      "gutter": 32,
+      "margin": 32,
+      "maxWidth": 1200
+    }
+  },
+  "animations": {
+    "duration": {
+      "instant": 0,
+      "fast": 150,
+      "normal": 300,
+      "slow": 500,
+      "slower": 700
+    },
+    "easing": {
+      "linear": [0, 0, 1, 1],
+      "easeIn": [0.4, 0, 1, 1],
+      "easeOut": [0, 0, 0.2, 1],
+      "easeInOut": [0.4, 0, 0.2, 1],
+      "spring": [0.175, 0.885, 0.32, 1.275]
+    }
+  },
+  "zIndex": {
+    "hide": -1,
+    "base": 0,
+    "dropdown": 1000,
+    "sticky": 1100,
+    "overlay": 1200,
+    "modal": 1300,
+    "popover": 1400,
+    "tooltip": 1500,
+    "toast": 1600
+  }
+}
