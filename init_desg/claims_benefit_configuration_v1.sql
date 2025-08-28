@@ -1,9 +1,9 @@
--- Claims Enhanced Benefit Configuration Schema v1.0
+-- Claims Benefit Configuration Schema v1.0
 -- Production-grade schema for handling complex benefit rules from Benefit_Plan.md
 -- Supports 150+ benefit configurations with validations and limits
 
 -- ============================================================================
--- ENHANCED BENEFIT CONFIGURATION TABLES
+-- BENEFIT CONFIGURATION TABLES
 -- ============================================================================
 
 CREATE SCHEMA IF NOT EXISTS claims;
@@ -59,11 +59,11 @@ DO $$ BEGIN
 END $$;
 
 -- ============================================================================
--- CORE BENEFIT CONFIGURATION TABLE (Enhanced)
+-- CORE BENEFIT CONFIGURATION TABLE
 -- ============================================================================
 
-DROP TABLE IF EXISTS claims.plan_benefit_enhanced CASCADE;
-CREATE TABLE claims.plan_benefit_enhanced (
+DROP TABLE IF EXISTS claims.plan_benefit CASCADE;
+CREATE TABLE claims.plan_benefit (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   plan_id UUID NOT NULL,
   
@@ -375,10 +375,10 @@ CREATE TABLE claims.accumulator_config (
 -- INDEXES FOR PERFORMANCE
 -- ============================================================================
 
-CREATE INDEX idx_plan_benefit_enhanced_plan_id ON claims.plan_benefit_enhanced(plan_id);
-CREATE INDEX idx_plan_benefit_enhanced_benefit_code ON claims.plan_benefit_enhanced(benefit_code);
-CREATE INDEX idx_plan_benefit_enhanced_category ON claims.plan_benefit_enhanced(benefit_category);
-CREATE INDEX idx_plan_benefit_enhanced_effective ON claims.plan_benefit_enhanced(effective_from, effective_to);
+CREATE INDEX idx_plan_benefit_plan_id ON claims.plan_benefit(plan_id);
+CREATE INDEX idx_plan_benefit_benefit_code ON claims.plan_benefit(benefit_code);
+CREATE INDEX idx_plan_benefit_category ON claims.plan_benefit(benefit_category);
+CREATE INDEX idx_plan_benefit_effective ON claims.plan_benefit(effective_from, effective_to);
 
 CREATE INDEX idx_surgery_classification_code ON claims.surgery_classification(procedure_code);
 CREATE INDEX idx_surgery_classification_class ON claims.surgery_classification(surgery_class);
@@ -464,7 +464,7 @@ BEGIN
   
   -- Get benefit configuration
   SELECT * INTO v_benefit
-  FROM claims.plan_benefit_enhanced
+  FROM claims.plan_benefit
   WHERE plan_id = v_plan_id
     AND benefit_code = p_benefit_code
     AND p_service_date BETWEEN effective_from AND COALESCE(effective_to, '9999-12-31');
@@ -503,8 +503,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_plan_benefit_enhanced_timestamp
-  BEFORE UPDATE ON claims.plan_benefit_enhanced
+CREATE TRIGGER update_plan_benefit_timestamp
+  BEFORE UPDATE ON claims.plan_benefit
   FOR EACH ROW EXECUTE FUNCTION claims.update_timestamp();
 
 CREATE TRIGGER update_validation_rules_timestamp
@@ -515,10 +515,10 @@ CREATE TRIGGER update_validation_rules_timestamp
 -- COMMENTS FOR DOCUMENTATION
 -- ============================================================================
 
-COMMENT ON TABLE claims.plan_benefit_enhanced IS 'Enhanced benefit configuration supporting all 150+ benefit types from Benefit_Plan.md';
+COMMENT ON TABLE claims.plan_benefit IS 'Comprehensive benefit configuration supporting all 150+ benefit types from Benefit_Plan.md';
 COMMENT ON TABLE claims.surgery_classification IS 'Surgery procedure classifications with component pricing percentages';
 COMMENT ON TABLE claims.hospitalization_coverage_rules IS 'Pre and post hospitalization coverage configurations';
 COMMENT ON TABLE claims.validation_rules IS 'Configurable validation rules for claims processing';
 COMMENT ON TABLE claims.accumulator_config IS 'Accumulator configuration for deductibles and out-of-pocket tracking';
 
--- End of Enhanced Benefit Configuration Schema
+-- End of Benefit Configuration Schema

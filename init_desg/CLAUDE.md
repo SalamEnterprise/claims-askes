@@ -11,9 +11,8 @@ This is a Health Insurance Claims Processing System focused on the Indonesian ma
 ### Core Components
 - **Claims Engine**: End-to-end claims processing (intake → adjudication → payment → EOB → appeals)
 - **Rule Engine**: Codified rules for eligibility, benefits, cost-sharing, pre-authorization, COB/TPL
-- **Validation Engine (v1)**: Async Python engine with 25+ parallel validation rules
-- **Data Model**: PostgreSQL-based with schemas for claims, policies, benefits, accumulators, and funding
-- **Enhanced Schema (v1)**: 15+ new tables for parametric benefit configuration
+- **Validation Engine**: Async Python engine with 25+ parallel validation rules
+- **Data Model**: PostgreSQL-based with comprehensive schemas for claims, policies, benefits, accumulators, and funding
 - **Integration Layer**: FHIR R4 compliant, EDI/X12 support, batch CSV processing
 - **Coverage Layers**: Supports IL (Inner Limit) and AC (Annual Cap) benefit structures
 
@@ -30,10 +29,10 @@ This is a Health Insurance Claims Processing System focused on the Indonesian ma
 # Set database connection
 export DATABASE_URL=postgresql+psycopg2://user:pass@host:5432/db
 
-# Run DDL to create schema (execute claims_sql_ddl_postgre_sql_v_0.sql)
+# Run DDL to create schema
 psql $DATABASE_URL < claims_sql_ddl_postgre_sql_v_0.sql
 
-# Run enhanced schema for v1 features
+# Run comprehensive benefit configuration schema
 psql $DATABASE_URL < claims_benefit_configuration_v1.sql
 ```
 
@@ -87,17 +86,14 @@ The validation engine requires:
 
 ## Data Model Highlights
 
-### Core Tables (v0)
-- `claims.plan_benefit`: Benefit definitions with limits, coinsurance, facility modes
+### Core Tables
+- `claims.plan_benefit`: Comprehensive benefit definitions with 150+ parametric configurations
 - `claims.policy_funding`: ASO, buffer, and non-benefit fund balances
 - `claims.accumulator_member_year`: Member-level annual accumulator tracking
 - `claims.accumulator_family_year`: Family-level annual accumulator tracking
 - `claims.member_coverage_layer`: IL/AC layer assignments per member
 - `claims.medication_order/administration`: Medication tracking
 - `claims.pharmacy_charge`: Pharmacy billing details
-
-### Enhanced Tables (v1)
-- `claims.plan_benefit_enhanced`: 150+ parametric benefit configurations
 - `claims.surgery_classification`: 4-tier surgery classification system
 - `claims.validation_rules`: Configurable validation rules without code changes
 - `claims.hospitalization_coverage_rules`: Pre/post hospitalization windows

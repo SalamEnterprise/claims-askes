@@ -69,7 +69,7 @@ python init_desg/claims_excel_importer_python_v_0.py \
 |----------|-------------|--------|
 | [Product Requirements](./init_desg/claims_prd_core_journey_v_0.md) | Core product requirements and journey | ✅ Complete |
 | [Benefit Rules](./init_desg/claims_group_policy_benefit_rules_v_0.md) | Group policy and benefit configuration | ✅ Complete |
-| [**Business Rules v1**](./init_desg/claims_business_rules_comprehensive_v1.md) | **150+ comprehensive benefit rules** | ✅ Complete |
+| [**Business Rules**](./init_desg/claims_business_rules_comprehensive_v1.md) | **150+ comprehensive benefit rules** | ✅ Complete |
 | [Gap Analysis](./init_desg/claims_gap_analysis_recommendations_v_0.md) | System gaps and recommendations | ✅ Complete |
 | [Provider Network](./init_desg/claims_provider_network_management_v_0.md) | Provider management system | ✅ Complete |
 | [Outpatient Flow](./init_desg/claims_outpatient_servicing_flow_v_0.md) | Outpatient servicing operations | ✅ Complete |
@@ -81,8 +81,8 @@ python init_desg/claims_excel_importer_python_v_0.py \
 
 | Component | Documentation | Purpose |
 |-----------|--------------|---------|
-| [**Validation Engine v1**](./init_desg/claims_validation_engine_v1.py) | **Async validation system** | **25+ parallel validation rules** |
-| [**Enhanced Schema v1**](./init_desg/claims_benefit_configuration_v1.sql) | **Parametric benefit schema** | **150+ configurable benefits** |
+| [**Validation Engine**](./init_desg/claims_validation_engine_v1.py) | **Async validation system** | **25+ parallel validation rules** |
+| [**Benefit Configuration Schema**](./init_desg/claims_benefit_configuration_v1.sql) | **Parametric benefit schema** | **150+ configurable benefits** |
 | [UI/UX Design](./init_desg/ui_ux_design_specifications_v_0.md) | Complete UI specifications | User interfaces for all portals |
 | [Process Flows](./init_desg/process_flow_diagrams_v_0.md) | Detailed process diagrams | Business process workflows |
 | [Data Model](./init_desg/data_model_design_v_0.md) | Database architecture | Complete database design |
