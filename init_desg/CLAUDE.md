@@ -11,7 +11,9 @@ This is a Health Insurance Claims Processing System focused on the Indonesian ma
 ### Core Components
 - **Claims Engine**: End-to-end claims processing (intake → adjudication → payment → EOB → appeals)
 - **Rule Engine**: Codified rules for eligibility, benefits, cost-sharing, pre-authorization, COB/TPL
+- **Validation Engine (v1)**: Async Python engine with 25+ parallel validation rules
 - **Data Model**: PostgreSQL-based with schemas for claims, policies, benefits, accumulators, and funding
+- **Enhanced Schema (v1)**: 15+ new tables for parametric benefit configuration
 - **Integration Layer**: FHIR R4 compliant, EDI/X12 support, batch CSV processing
 - **Coverage Layers**: Supports IL (Inner Limit) and AC (Annual Cap) benefit structures
 
@@ -30,6 +32,9 @@ export DATABASE_URL=postgresql+psycopg2://user:pass@host:5432/db
 
 # Run DDL to create schema (execute claims_sql_ddl_postgre_sql_v_0.sql)
 psql $DATABASE_URL < claims_sql_ddl_postgre_sql_v_0.sql
+
+# Run enhanced schema for v1 features
+psql $DATABASE_URL < claims_benefit_configuration_v1.sql
 ```
 
 ### Data Import
@@ -46,6 +51,11 @@ The Excel importer requires:
 - pandas
 - sqlalchemy
 - psycopg2
+
+The validation engine requires:
+- asyncio (built-in)
+- dataclasses (built-in)
+- concurrent.futures (built-in)
 
 ## Key Business Rules
 
@@ -77,7 +87,7 @@ The Excel importer requires:
 
 ## Data Model Highlights
 
-### Core Tables
+### Core Tables (v0)
 - `claims.plan_benefit`: Benefit definitions with limits, coinsurance, facility modes
 - `claims.policy_funding`: ASO, buffer, and non-benefit fund balances
 - `claims.accumulator_member_year`: Member-level annual accumulator tracking
@@ -85,6 +95,18 @@ The Excel importer requires:
 - `claims.member_coverage_layer`: IL/AC layer assignments per member
 - `claims.medication_order/administration`: Medication tracking
 - `claims.pharmacy_charge`: Pharmacy billing details
+
+### Enhanced Tables (v1)
+- `claims.plan_benefit_enhanced`: 150+ parametric benefit configurations
+- `claims.surgery_classification`: 4-tier surgery classification system
+- `claims.validation_rules`: Configurable validation rules without code changes
+- `claims.hospitalization_coverage_rules`: Pre/post hospitalization windows
+- `claims.age_based_benefit_rules`: Age-specific benefit variations
+- `claims.room_upgrade_rules`: Room class upgrade management
+- `claims.exclusion_master`: Centralized exclusion management
+- `claims.benefit_limit_groups`: Shared limit configurations
+- `claims.special_condition_rules`: Condition-specific coverage rules
+- `claims.accumulator_config`: Advanced accumulator management
 
 ### Key Fields in plan_benefit
 - `benefit_code`: Unique benefit identifier

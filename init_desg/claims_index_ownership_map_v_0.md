@@ -1,6 +1,7 @@
-# Claims — Index & Ownership Map (v0.4)
+# Claims — Index & Ownership Map (v0.5)
 
-**Last Updated**: 2025‑08‑14 (Asia/Jakarta)
+**Last Updated**: 2025‑08‑15 (Asia/Jakarta)
+**Major Update**: Added v1 enhanced validation system with 150+ parametric benefit configurations
 
 ## Document Set & Accountability (v0.4)
 
@@ -36,6 +37,12 @@
 15. **Process Flow Diagrams (v0.1)** — Business Process, Operations, Technology.
 16. **Data Model Design (v0.1)** — Data Architecture, Engineering, Database Administration.
 17. **System Integration Architecture (v0.1)** — Enterprise Architecture, Integration Engineering, API Management.
+
+### Enhanced Validation System (v1)
+18. **Claims — Business Rules Comprehensive (v1.0)** — Product + Medical Affairs + Pricing.
+19. **Claims — Benefit Configuration Schema (v1.0)** — Engineering + Database Administration.
+20. **Claims — Validation Engine (v1.0)** — Engineering + Technology.
+21. **Benefit Plan Reference** — Product + Pricing + Benefits.
 
 ## Review Cadence & Change Control
 - **Weekly**: Cost control metrics, authorization performance, provider outliers.
