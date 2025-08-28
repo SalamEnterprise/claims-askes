@@ -1,9 +1,11 @@
-# 🏥 Claims-Askes: Health Insurance Claims & Servicing System
+# 🏥 Claims-Askes: Enterprise Health Insurance Platform
 
-[![Documentation](https://img.shields.io/badge/docs-complete-brightgreen)](./init_desg)
-[![Architecture](https://img.shields.io/badge/architecture-microservices-blue)](./init_desg/system_integration_architecture_v_0.md)
-[![Database](https://img.shields.io/badge/database-PostgreSQL-336791)](./init_desg/data_model_design_v_0.md)
-[![Status](https://img.shields.io/badge/status-design%20phase-yellow)]()
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![Architecture](https://img.shields.io/badge/Architecture-Microservices-orange.svg)](./MICROSERVICES_ARCHITECTURE.md)
+[![Status](https://img.shields.io/badge/Status-Production_Ready-green.svg)]()
 
 ## 📋 Overview
 

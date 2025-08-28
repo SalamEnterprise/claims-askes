@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # ==================== DATABASE ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: claims-postgres
+    environment:
+      POSTGRES_DB: claims_askes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - claims-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== CACHE ====================
+  redis:
+    image: redis:7-alpine
+    container_name: claims-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - claims-network
+    command: redis-server --appendonly yes
+
+  # ==================== MESSAGE QUEUE ====================
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: claims-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - claims-network
+
+  # ==================== DOCUMENT STORAGE ====================
+  minio:
+    image: minio/minio:latest
+    container_name: claims-minio
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    environment:
+      MINIO_ROOT_USER: minio_admin
+      MINIO_ROOT_PASSWORD: minio_password
+    volumes:
+      - minio_data:/data
+    networks:
+      - claims-network
+    command: server /data --console-address ":9001"
+
+  # ==================== EMAIL SERVICE (Dev) ====================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: claims-mailhog
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - claims-network
+
+  # ==================== API GATEWAY ====================
+  nginx:
+    image: nginx:alpine
+    container_name: claims-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./gateway/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - claims-network
+
+# ==================== VOLUMES ====================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+
+# ==================== NETWORKS ====================
+networks:
+  claims-network:
+    driver: bridge
