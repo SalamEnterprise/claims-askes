@@ -30,7 +30,7 @@ The Claims Service is the core microservice responsible for managing the entire 
 - **Database**: PostgreSQL 15+ (claims_service schema)
 - **ORM**: SQLAlchemy 2.0 + Alembic
 - **Cache**: Redis with redis-py
-- **Message Queue**: Celery with RabbitMQ
+- **Message Queue**: Celery with Redis
 - **API Client**: httpx for async HTTP
 - **Validation**: Pydantic 2.0+
 - **Testing**: pytest, pytest-asyncio, pytest-cov
@@ -87,7 +87,7 @@ class Claim:
 - Python 3.11+
 - PostgreSQL 15+
 - Redis 7+
-- RabbitMQ 3.12+
+- Redis 7+ (for both caching and message queue)
 
 ### Installation
 
@@ -281,8 +281,9 @@ DATABASE_MAX_OVERFLOW=40
 # Redis
 REDIS_URL=redis://localhost:6379/0
 
-# RabbitMQ
-RABBITMQ_URL=amqp://admin:admin@localhost:5672/
+# Celery Broker (Redis)
+CELERY_BROKER_URL=redis://localhost:6379/1
+CELERY_RESULT_BACKEND=redis://localhost:6379/2
 
 # Security
 JWT_SECRET=your-secret-key
@@ -728,10 +729,28 @@ from src.core.config import settings
 from src.services.validation_service import ValidationService
 from src.services.eligibility_service import EligibilityService
 
+# Configure Celery with Redis
 celery_app = Celery(
     "claims_worker",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND
+    broker=settings.CELERY_BROKER_URL,  # redis://localhost:6379/1
+    backend=settings.CELERY_RESULT_BACKEND  # redis://localhost:6379/2
+)
+
+# Celery configuration
+celery_app.conf.update(
+    task_serializer='json',
+    accept_content=['json'],
+    result_serializer='json',
+    timezone='UTC',
+    enable_utc=True,
+    broker_connection_retry_on_startup=True,
+    redis_max_connections=50,
+    redis_socket_keepalive=True,
+    redis_socket_keepalive_options={
+        1: 3,  # TCP_KEEPIDLE
+        2: 3,  # TCP_KEEPINTVL
+        3: 3,  # TCP_KEEPCNT
+    }
 )
 
 @celery_app.task(bind=True, max_retries=3)

@@ -1035,7 +1035,6 @@ from .events import (
 
 # Message brokers
 from .brokers import (
-    RabbitMQBroker,
     RedisBroker,
     KafkaBroker
 )
@@ -1058,8 +1057,6 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 import uuid
-import aio_pika
-from aio_pika import Message, ExchangeType
 import redis.asyncio as redis
 from aiokafka import AIOKafkaProducer
 
@@ -1094,55 +1091,57 @@ class Event:
         })
 
 class EventPublisher:
-    """RabbitMQ event publisher"""
+    """Redis Streams event publisher with Celery integration"""
     
-    def __init__(self, url: str, exchange_name: str = 'events'):
-        self.url = url
-        self.exchange_name = exchange_name
-        self.connection = None
-        self.channel = None
-        self.exchange = None
+    def __init__(self, redis_url: str, stream_key: str = 'events'):
+        self.redis_url = redis_url
+        self.stream_key = stream_key
+        self.client = None
     
     async def connect(self):
-        """Connect to RabbitMQ"""
-        self.connection = await aio_pika.connect_robust(self.url)
-        self.channel = await self.connection.channel()
-        
-        # Declare exchange
-        self.exchange = await self.channel.declare_exchange(
-            self.exchange_name,
-            ExchangeType.TOPIC,
-            durable=True
-        )
+        """Connect to Redis"""
+        self.client = await redis.from_url(self.redis_url)
     
     async def publish(self, event: Event):
-        """Publish single event"""
-        if not self.channel:
+        """Publish single event to Redis Stream"""
+        if not self.client:
             await self.connect()
         
-        routing_key = event.type.replace('.', '_')
-        message = Message(
-            event.to_json().encode(),
-            content_type='application/json',
-            delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-            timestamp=datetime.utcnow(),
-            message_id=str(uuid.uuid4()),
-            correlation_id=event.metadata.correlation_id
+        # Add to Redis Stream
+        await self.client.xadd(
+            self.stream_key,
+            {
+                'type': event.type,
+                'data': json.dumps(event.data),
+                'metadata': json.dumps(asdict(event.metadata), default=str)
+            }
         )
         
-        await self.exchange.publish(message, routing_key=routing_key)
+        # Also publish to Pub/Sub for real-time listeners
+        channel = f"events:{event.type}"
+        await self.client.publish(channel, event.to_json())
     
     async def publish_batch(self, events: List[Event]):
         """Publish multiple events"""
-        tasks = [self.publish(event) for event in events]
-        await asyncio.gather(*tasks)
+        if not self.client:
+            await self.connect()
+        
+        pipeline = self.client.pipeline()
+        for event in events:
+            pipeline.xadd(
+                self.stream_key,
+                {
+                    'type': event.type,
+                    'data': json.dumps(event.data),
+                    'metadata': json.dumps(asdict(event.metadata), default=str)
+                }
+            )
+        await pipeline.execute()
     
     async def close(self):
         """Close connection"""
-        if self.channel:
-            await self.channel.close()
-        if self.connection:
-            await self.connection.close()
+        if self.client:
+            await self.client.close()
 
 class RedisEventPublisher:
     """Redis Pub/Sub event publisher"""
@@ -1229,48 +1228,30 @@ class EventHandler(ABC):
         pass
 
 class EventConsumer:
-    """RabbitMQ event consumer"""
+    """Redis Streams event consumer with Celery integration"""
     
-    def __init__(self, url: str, queue_name: str):
-        self.url = url
-        self.queue_name = queue_name
-        self.connection = None
-        self.channel = None
-        self.queue = None
+    def __init__(self, redis_url: str, consumer_group: str, consumer_name: str):
+        self.redis_url = redis_url
+        self.consumer_group = consumer_group
+        self.consumer_name = consumer_name
+        self.client = None
         self.handlers: Dict[str, List[EventHandler]] = {}
+        self.stream_key = 'events'
     
     async def connect(self):
-        """Connect to RabbitMQ"""
-        self.connection = await aio_pika.connect_robust(self.url)
-        self.channel = await self.connection.channel()
+        """Connect to Redis"""
+        self.client = await redis.from_url(self.redis_url)
         
-        # Set prefetch count for load balancing
-        await self.channel.set_qos(prefetch_count=10)
-        
-        # Declare exchange
-        exchange = await self.channel.declare_exchange(
-            'events',
-            aio_pika.ExchangeType.TOPIC,
-            durable=True
-        )
-        
-        # Declare dead letter exchange
-        dlx = await self.channel.declare_exchange(
-            'dlx',
-            aio_pika.ExchangeType.DIRECT,
-            durable=True
-        )
-        
-        # Declare queue with dead letter configuration
-        self.queue = await self.channel.declare_queue(
-            self.queue_name,
-            durable=True,
-            arguments={
-                'x-dead-letter-exchange': 'dlx',
-                'x-message-ttl': 3600000,  # 1 hour
-                'x-max-retries': 3
-            }
-        )
+        # Create consumer group if it doesn't exist
+        try:
+            await self.client.xgroup_create(
+                self.stream_key,
+                self.consumer_group,
+                id='0'
+            )
+        except redis.ResponseError:
+            # Group already exists
+            pass
     
     def subscribe(self, event_type: str, handler: EventHandler):
         """Subscribe to event type"""
@@ -1279,71 +1260,67 @@ class EventConsumer:
         self.handlers[event_type].append(handler)
     
     async def start(self):
-        """Start consuming messages"""
-        if not self.channel:
+        """Start consuming messages from Redis Streams"""
+        if not self.client:
             await self.connect()
         
-        # Bind queue to event types
-        exchange = await self.channel.get_exchange('events')
-        for event_type in self.handlers.keys():
-            routing_key = event_type.replace('.', '_')
-            await self.queue.bind(exchange, routing_key=routing_key)
-        
-        # Start consuming
-        async with self.queue.iterator() as queue_iter:
-            async for message in queue_iter:
-                await self._process_message(message)
-    
-    async def _process_message(self, message: IncomingMessage):
-        """Process incoming message"""
-        async with message.process():
+        while True:
             try:
-                # Parse message
-                body = json.loads(message.body.decode())
-                event = Event(
-                    type=body['type'],
-                    data=body['data'],
-                    metadata=EventMetadata(
-                        timestamp=datetime.fromisoformat(body['metadata']['timestamp']),
-                        correlation_id=body['metadata']['correlation_id'],
-                        user_id=body['metadata'].get('user_id'),
-                        source=body['metadata'].get('source'),
-                        version=body['metadata'].get('version', '1.0')
-                    )
+                # Read from stream
+                messages = await self.client.xreadgroup(
+                    self.consumer_group,
+                    self.consumer_name,
+                    {self.stream_key: '>'},
+                    count=10,
+                    block=1000  # Block for 1 second
                 )
                 
-                # Get handlers for event type
-                handlers = self.handlers.get(event.type, [])
-                
-                # Process with all handlers
-                for handler in handlers:
-                    await handler.handle(event)
-                
-                logger.info(f"Successfully processed event: {event.type}")
-                
+                for stream_name, stream_messages in messages:
+                    for message_id, data in stream_messages:
+                        await self._process_message(message_id, data)
+                        
+                        # Acknowledge message
+                        await self.client.xack(
+                            self.stream_key,
+                            self.consumer_group,
+                            message_id
+                        )
+            
             except Exception as e:
-                logger.error(f"Error processing message: {e}")
-                
-                # Get retry count
-                headers = message.headers or {}
-                retry_count = headers.get('x-retry-count', 0)
-                
-                if retry_count < 3:
-                    # Requeue with incremented retry count
-                    await asyncio.sleep(2 ** retry_count)  # Exponential backoff
-                    
-                    await self.channel.default_exchange.publish(
-                        aio_pika.Message(
-                            message.body,
-                            headers={'x-retry-count': retry_count + 1}
-                        ),
-                        routing_key=self.queue_name
-                    )
-                    logger.info(f"Requeued message, retry count: {retry_count + 1}")
-                else:
-                    # Max retries exceeded, reject to dead letter queue
-                    await message.reject(requeue=False)
-                    logger.error(f"Message sent to dead letter queue after {retry_count} retries")
+                logger.error(f"Error in consumer loop: {e}")
+                await asyncio.sleep(1)
+    
+    async def _process_message(self, message_id: str, data: Dict):
+        """Process incoming message from Redis Stream"""
+        try:
+            # Parse message
+            event = Event(
+                type=data[b'type'].decode(),
+                data=json.loads(data[b'data'].decode()),
+                metadata=EventMetadata(
+                    **json.loads(data[b'metadata'].decode())
+                )
+            )
+            
+            # Get handlers for event type
+            handlers = self.handlers.get(event.type, [])
+            
+            # Process with all handlers
+            for handler in handlers:
+                await handler.handle(event)
+            
+            logger.info(f"Successfully processed event: {event.type}")
+            
+        except Exception as e:
+            logger.error(f"Error processing message {message_id}: {e}")
+            
+            # For retry logic, use Celery tasks instead
+            from celery import current_app
+            current_app.send_task(
+                'process_failed_event',
+                args=[message_id, data],
+                countdown=60  # Retry after 1 minute
+            )
     
     async def stop(self):
         """Stop consumer"""

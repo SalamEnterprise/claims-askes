@@ -22,7 +22,7 @@ The Mobile BFF is a specialized backend service optimized for mobile application
 - **API**: REST with optional GraphQL (Strawberry)
 - **Protocol**: HTTP/2 with fallback to HTTP/1.1
 - **Caching**: Redis with edge caching
-- **Queue**: Celery with RabbitMQ
+- **Queue**: Celery with Redis
 - **Push**: FCM (Firebase) + APNs (Apple) via PyFCM/PyAPNs2
 - **WebSocket**: python-socketio for real-time
 - **Database**: PostgreSQL with SQLAlchemy 2.0
