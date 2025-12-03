@@ -9,7 +9,9 @@
 ---
 
 ## 1) Executive Summary
-Standardizes end‑to‑end claims (intake → adjudication → payment → EOB → appeals → post‑pay). Multi‑channel intake (portal, EDI/X12, FHIR, CSV, email+OCR), codified rules (eligibility, benefits, cost‑sharing, pre‑auth, COB/TPL), robust audit/analytics. Indonesia‑aware (ICD‑10 + ICD‑9‑CM for INA‑CBG) with global interoperability (FHIR Claim/ClaimResponse/Coverage/EOB; X12 837/835).
+  - Standardizes end‑to‑end claims (intake → adjudication → payment → EOB → appeals → post‑pay). 
+  - Multi‑channel intake (portal, EDI/X12, FHIR, CSV, email+OCR), codified rules (eligibility, benefits, cost‑sharing, pre‑auth, COB/TPL), robust audit/analytics. 
+  - Indonesia‑aware (ICD‑10 + ICD‑9‑CM for INA‑CBG) with global interoperability (FHIR Claim/ClaimResponse/Coverage/EOB; X12 837/835).
 
 ---
 
