@@ -10,14 +10,25 @@
 
 ## 1) Executive Summary
   - Standardizes end‑to‑end claims (intake → adjudication → payment → EOB → appeals → post‑pay). 
-  - Multi‑channel intake (portal, EDI/X12, FHIR, CSV, email+OCR), codified rules (eligibility, benefits, cost‑sharing, pre‑auth, COB/TPL), robust audit/analytics. 
+  - Multi‑channel intake (portal, EDI/X12, FHIR, CSV, email+OCR),
+  - codified rules (eligibility, benefits, cost‑sharing,
+  - pre‑auth, COB/TPL), robust audit/analytics. 
   - Indonesia‑aware (ICD‑10 + ICD‑9‑CM for INA‑CBG) with global interoperability (FHIR Claim/ClaimResponse/Coverage/EOB; X12 837/835).
 
 ---
 
 ## 2) Scope
-**In scope**: Individual & group medical claims; prior‑auth; COB/TPL; pricing (contract/UCR/relative); SIU controls; observability; privacy/security/retention.  
-**Out of scope (v0.1/0.2)**: Provider credentialing; full INA‑CBG UI; PBM switch.
+**In scope**: 
+  - Individual & group medical claims;
+  - prior‑auth; COB/TPL;
+  - pricing (contract/UCR/relative);
+  - SIU controls; observability;
+  - privacy/security/retention.
+     
+**Out of scope (v0.1/0.2)**:
+  - Provider credentialing;
+  - full INA‑CBG UI;
+  - PBM switch.
 
 ---
 
@@ -36,17 +47,78 @@ Member, Provider, Claims Ops, Medical Reviewers, Pricing/Benefits Analysts, Fina
 **Intake** → **Pre‑check** → **Adjudication** → **Payment/EOB** → **Appeals** → **Post‑pay Integrity**.  
 ### 5.2 State Model (simplified)
 `Draft → Received → Pre‑checked → (Pended|Routed) → Adjudication → (AutoPay|ManualReview) → (Denied|Approved) → (EOB‑Issued) → (Paid|Offset) → Closed → (Appeal?)`. Sub‑states for Attachments/COB/TPL/SIU.
+```mermaid
+graph LR
+    %% 1. Initial States
+    subgraph Claim Initiation
+        A[Draft] --> B(Received);
+        B --> C(Pre-checked);
+    end
+
+    %% 2. Branching & Parallel Processing
+    C --> D{Pended / Routed};
+    
+    subgraph Adjudication Pathway
+        direction LR
+        D --> E[Adjudication];
+        
+        %% Auto or Manual Review Branch
+        E --> F1(AutoPay);
+        E --> F2(Manual Review);
+    end
+    
+    F1 --> G{Decision};
+    F2 --> G;
+
+    %% 3. Decision & Finalization
+    G(Denied) --> H[EOB-Issued];
+    G(Approved) --> I{Settlement};
+    
+    subgraph Settlement
+        I --> J1(Paid);
+        I --> J2(Offset);
+    end
+    
+    H & J1 & J2 --> K[Closed];
+    
+    %% 4. Optional / Sub-states (Notes)
+    L[Sub-states for: Attachments/COB/TPL/SIU]
+    style L fill:#eee,stroke:#999
+
+    %% 5. Appeal Loop
+    K --> M{Appeal?};
+    M -- Yes --> B;
+    M -- No --> End;
+
+    %% Styling (Optional but helpful)
+    style A fill:#DCE7F4
+    style K fill:#F9E79F,stroke:#666
+    style E fill:#BBF,stroke:#333
+```
 
 ---
 
 ## 6) Business Rules — Overview
-Rule schema, governance, and the primary families: Eligibility, Cost‑Sharing, PA/Medical Necessity, Coding/Docs, Pricing/Network, COB/TPL, Anti‑Fraud.  
+Rule schema, governance, and the primary families: 
+- Eligibility,
+- Cost‑Sharing,
+- PA/Medical Necessity,
+- Coding/Docs,
+- Pricing/Network,
+- COB/TPL, Anti‑Fraud.  
 > Detailed group‑policy mappings & benefit rules are in **“Claims — Group Policy & Benefit Rules (v0.2)”**.
 
 ---
 
 ## 7) Functional Requirements
-7.1 Intake & Validation; 7.2 Adjudication Engine; 7.3 Pricing; 7.4 COB/TPL; 7.5 Payment & Remittance; 7.6 Appeals; 7.7 Fraud & Integrity; 7.8 Observability & Ops.  
+    7.1 Intake & Validation; 
+    7.2 Adjudication Engine; 
+    7.3 Pricing; 
+    7.4 COB/TPL; 
+    7.5 Payment & Remittance; 
+    7.6 Appeals; 
+    7.7 Fraud & Integrity; 
+    7.8 Observability & Ops.  
 (Contents mirror v0.1 with no changes.)
 
 ---
