@@ -1081,3 +1081,65 @@ graph TB
 - Data Model Design
 - API Specifications
 - System Architecture
+```mermaid
+graph TD
+    A[Start: Claim Received] --> B{Is Member Active?};
+    
+    %% Member Active Check
+    B -- No --> D1[Deny: Inactive Member];
+    B -- Yes --> C{Is Provider In-Network?};
+    
+    %% Provider Network Check
+    C -- No --> C1[Apply OON Benefits];
+    C1 --> C1a{Is it an Emergency?};
+    C1a -- Yes --> C2[Apply IN-Network Rates];
+    C1a -- No --> C3[Apply OON Rates];
+    C -- Yes --> D{Is Service Covered?};
+    C3 --> D;
+    C2 --> D;
+    
+    %% Service Coverage Check
+    D -- No --> D1a[Check Exclusions];
+    D1a --> D1b{Absolute Exclusion?};
+    D1b -- Yes --> D1c[Deny: Absolute Exclusion];
+    D1b -- No --> D1d[Review Clinical Notes / Conditional];
+    D -- Yes --> E;
+    D1d --> E;
+    
+    %% Prior Authorization Check
+    E{Prior Auth Required?} --> E1[Valid Auth → Continue];
+    E -- No --> E1;
+    E -- Yes --> E2[Check Auth Status];
+    E2 -- Not Authorized --> D2[Deny: No Auth];
+    E2 -- Expired --> D3[Pend for Review];
+    E2 -- Valid --> E1;
+    
+    %% Benefit Limits Check
+    E1 --> F{Within Benefit Limits?};
+    F -- No --> F1[Apply Limits];
+    F1 --> F1a{Allow Excess?};
+    F1a -- Yes --> F2[Draw from Buffer];
+    F1a -- No --> F3[Cap at Limit];
+    F -- Yes --> G;
+    F2 --> G;
+    F3 --> G;
+    
+    %% Deductible and Cost-Sharing
+    G{Deductible Met?} --> H[Calculate Copay/Coinsurance];
+    G -- No --> G1[Apply Deductible];
+    G1 --> H;
+    
+    H --> I{COB Applicable?};
+    
+    %% Coordination of Benefits (COB)
+    I -- No --> J[Final Payment Calculation];
+    I -- Yes --> I1[Coordinate Benefits];
+    I1 --> I2[Primary → Process Full];
+    I1 --> I3[Secondary → Process Balance];
+    I2 --> J;
+    I3 --> J;
+    
+    %% Final Calculation (Output)
+    J --> K[Plan Pays: Allowed - Member Responsibility];
+    J --> L[Member Pays: Copay + Coinsurance + Deductible];
+```
